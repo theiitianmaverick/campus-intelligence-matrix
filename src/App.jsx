@@ -12,14 +12,12 @@ function App() {
     if (!query.trim()) return;
 
     setIsLoading(true);
-    // Add initial log to the terminal UI
     setLogs((prev) => [...prev, `> Intercepting query: "${query}"...`]);
     setResult(null);
     setTrace('');
 
     try {
       // 🌐 THIS IS YOUR LIVE CLOUD BACKEND URL! 
-      // It replaces the local '/api/orchestrate' path.
       const response = await fetch('https://campus-intelligence-matrix.onrender.com/api/orchestrate', {
         method: 'POST',
         headers: {
@@ -30,14 +28,14 @@ function App() {
 
       const data = await response.json();
       
-      // Update the terminal and trace UI with the response
+      // ✨ FIX: Mapped to match server.js response properties (routedServer & aiResponse)
       setLogs((prev) => [
         ...prev, 
-        `> Routing to node: ${data.nodeTarget}...`, 
+        `> Routing to node: ${data.routedServer}...`, 
         '> Payload extracted successfully.'
       ]);
-      setTrace(`[ROUTING TRACE] ⚡ Processed by: ${data.nodeTarget}`);
-      setResult(data.answer);
+      setTrace(`[ROUTING TRACE] ⚡ Processed by: ${data.routedServer}`);
+      setResult(data.aiResponse);
 
     } catch (error) {
       setLogs((prev) => [...prev, '> ERROR: Connection to Cloud Orchestrator failed.']);
@@ -90,7 +88,7 @@ function App() {
             )}
             
             {result ? (
-              <div className="prose prose-invert max-w-none text-gray-300">
+              <div className="prose prose-invert max-w-none text-gray-300 whitespace-pre-wrap">
                 {result}
               </div>
             ) : (
