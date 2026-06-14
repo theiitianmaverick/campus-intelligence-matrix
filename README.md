@@ -1,70 +1,26 @@
 # 🎓 Campus Intelligence Matrix
 
-> **A Unified Campus Dashboard Powered by AI-Orchestrated MCP Nodes**
->
-> Transforming fragmented campus information systems into a seamless, intelligent, real-time experience.
+A unified AI-powered campus dashboard that intelligently routes user queries across distributed campus information nodes.
+
+Campus Intelligence Matrix brings together academic policies, library resources, student activities, and dining information through a single conversational interface while maintaining a modular, distributed architecture.
 
 ---
 
-# 🚀 Overview
+## 🚀 Overview
 
-College campuses often rely on multiple disconnected systems for essential information. Students are forced to navigate separate platforms for library resources, dining schedules, academic policies, and campus events, leading to a fragmented and inefficient experience.
+Campus information is often scattered across multiple independent systems, making it difficult for students to quickly access the information they need.
 
-**Campus Intelligence Matrix** solves this problem by providing a unified dashboard with an embedded AI assistant capable of dynamically routing queries to specialized campus data nodes.
+Campus Intelligence Matrix addresses this challenge by introducing an AI-driven orchestration layer that analyzes user intent and routes requests to the appropriate domain-specific service.
 
-Instead of aggregating everything into a centralized database, the system adopts a distributed architecture inspired by the **Model Context Protocol (MCP)**. Each service exists as an isolated context node, while an intelligent orchestrator determines where requests should be routed and returns responses in real time.
-
----
-
-# 👨‍💻 Developer
-
-| Field      | Information                   |
-| ---------- | ----------------------------- |
-| Name       | **Prateek Ostwal**            |
-| Program    | B.Tech Electrical Engineering |
-| Institute  | IIT Roorkee                   |
-| GitHub     | @theiitianmaverick            |
-| Repository | `campus-intelligence-matrix`  |
+Instead of relying on a centralized database, the system uses independent context nodes responsible for different campus functions, enabling scalability, maintainability, and clear separation of concerns.
 
 ---
 
-# 📌 Problem Statement
-
-Campus information is typically scattered across multiple disconnected systems.
-
-| Existing Challenge                        | Impact on Students      |
-| ----------------------------------------- | ----------------------- |
-| Legacy library portals                    | Slow resource discovery |
-| Cafeteria menus distributed separately    | Poor accessibility      |
-| Event information spread across platforms | Missed opportunities    |
-| Academic policies hidden in documents     | Difficult retrieval     |
-| Multiple interfaces and workflows         | Reduced productivity    |
-
-Students often spend more time searching for information than actually using it.
-
----
-
-# 💡 Solution
-
-Campus Intelligence Matrix introduces a centralized user experience backed by a distributed architecture.
-
-Rather than storing all campus information in a monolithic database:
-
-* Independent services remain isolated.
-* Specialized context nodes manage domain-specific information.
-* Queries are routed dynamically based on intent.
-* Responses are generated in real time.
-* The architecture remains scalable and maintainable.
-
-This approach enables a clean separation of concerns while providing students with a single intelligent interface.
-
----
-
-# ⚡ Key Features
+## ✨ Features
 
 ### 🤖 AI Query Orchestrator
 
-The system analyzes natural-language queries and determines which context node should handle the request.
+Processes natural-language queries and dynamically determines the appropriate destination node.
 
 Example queries:
 
@@ -81,205 +37,137 @@ Are there any upcoming coding club events?
 ```
 
 ```text
-What is the minimum attendance requirement policy?
+What is the minimum attendance requirement?
 ```
 
----
+### 📡 Intelligent Query Routing
 
-### 📡 Dynamic Routing Traces
+Every request is analyzed and routed to the most relevant service node.
 
-The dashboard visualizes routing decisions in real time.
-
-Example:
+Example routing trace:
 
 ```text
 [ROUTING TRACE]
-Directed query payload straight to:
-Main Dining Hall Matrix Node
+Query classified as Dining Information
+Routing request to Main Dining Hall Node
 ```
 
-This provides transparency into how requests are processed.
+### 🖥 Real-Time Orchestrator Console
 
----
+Provides visibility into:
 
-### 🖥 Live Orchestrator Console
+* Request processing
+* Node selection
+* Routing decisions
+* Response generation
+* System activity
 
-An embedded terminal-style console displays:
+### 📚 Library Catalog Node
 
-* Query payloads
-* Processing telemetry
-* Routing information
-* Context node selection
-* Structured responses
+Supports:
 
-This creates an observability layer directly inside the dashboard.
-
----
-
-### 📚 Campus Library Catalog Node
-
-Handles:
-
-* Book discovery
-* Catalog lookups
+* Book search
+* Resource discovery
 * Availability checks
-* Resource identifiers
-* Inventory information
+* Catalog information
 
----
+### 📜 Academic Policy Node
 
-### 📜 Academic Registrar Policy Hub
+Supports:
 
-Handles:
-
-* Attendance regulations
-* Academic policies
+* Attendance policies
+* Academic regulations
 * Registrar notices
 * Institutional guidelines
 
-Example dataset:
+### 🎉 Student Activity Node
 
-```text
-Minimum Attendance Requirement:
-75% per registered course module
-```
+Supports:
 
----
-
-### 🎉 Student Activity Center Hub
-
-Handles:
-
+* Club announcements
 * Technical events
 * Workshops
-* Club activities
 * Student programs
-* Tech fest announcements
 
----
+### 🍽 Dining Hall Node
 
-### 🍽 Main Dining Hall Matrix
-
-Handles:
+Supports:
 
 * Daily menus
 * Meal schedules
-* Dining timings
-* Cafeteria updates
+* Dining updates
+* Service timings
 
 ---
 
-# 🏗 System Architecture
+## 🏗 Architecture
 
 ```text
-                              Student
-                                 │
-                                 ▼
+Student
+   │
+   ▼
 
-                ┌────────────────────────────┐
-                │  Campus Intelligence Matrix │
-                │      React + Tailwind UI    │
-                └─────────────┬──────────────┘
-                              │
-                              ▼
+Campus Intelligence Matrix
+        │
+        ▼
 
-                ┌────────────────────────────┐
-                │   Express AI Orchestrator   │
-                │     Query Routing Engine    │
-                └──────┬─────────┬───────────┘
-                       │         │
-         ┌─────────────┼─────────┼─────────────┐
-         │             │         │             │
-         ▼             ▼         ▼             ▼
+AI Query Orchestrator
+        │
+ ┌──────┼──────┐
+ │      │      │
+ ▼      ▼      ▼
 
- ┌────────────┐ ┌───────────┐ ┌──────────┐ ┌────────────┐
- │  Library   │ │ Registrar │ │ Activity │ │ Dining Hall│
- │    Node    │ │   Policy  │ │   Hub    │ │   Matrix   │
- └────────────┘ └───────────┘ └──────────┘ └────────────┘
+Library   Academic   Student
+ Node      Node      Activity
+                      Node
+        │
+        ▼
 
-         ▲             ▲         ▲             ▲
-         └─────────────┴─────────┴─────────────┘
-
-                Live Response Aggregation
+Dining Hall Node
 ```
+
+The orchestrator acts as the central coordination layer while individual nodes maintain ownership of their respective datasets and responsibilities.
 
 ---
 
-# 🔄 Request Processing Flow
+## 🔄 Request Flow
 
 ```text
 User Query
-    │
-    ▼
+     │
+     ▼
 Intent Analysis
-    │
-    ▼
-AI Orchestrator
-    │
-    ▼
-Routing Decision
-    │
-    ▼
-Target Context Node
-    │
-    ▼
+     │
+     ▼
+Query Routing
+     │
+     ▼
+Target Node
+     │
+     ▼
 Response Generation
-    │
-    ▼
+     │
+     ▼
 Dashboard Output
 ```
 
 ---
 
-# ⚙ Technology Stack
+## 🛠 Technology Stack
 
-| Layer                   | Technology                          |
-| ----------------------- | ----------------------------------- |
-| Frontend                | React 18                            |
-| Styling                 | Tailwind CSS                        |
-| Build Tool              | Vite                                |
-| Backend                 | Node.js                             |
-| API Framework           | Express.js                          |
-| Architecture            | MCP-Based Distributed Context Nodes |
-| Communication           | REST APIs + JSON                    |
-| Development Environment | Localhost                           |
-
----
-
-# 🔌 Vite Proxy Layer
-
-To eliminate CORS issues during development, the frontend uses a proxy configuration inside `vite.config.js`.
-
-Requests made to:
-
-```text
-/api/*
-```
-
-are automatically forwarded to:
-
-```text
-http://127.0.0.1:5000/api/*
-```
-
-Example configuration:
-
-```javascript
-server: {
-  proxy: {
-    '/api': {
-      target: 'http://127.0.0.1:5000',
-      changeOrigin: true
-    }
-  }
-}
-```
-
-This allows seamless communication between the React frontend and Express backend while maintaining a clean development workflow.
+| Layer         | Technology                     |
+| ------------- | ------------------------------ |
+| Frontend      | React 18                       |
+| Build Tool    | Vite                           |
+| Styling       | Tailwind CSS                   |
+| Backend       | Node.js                        |
+| API Framework | Express.js                     |
+| Architecture  | MCP-Inspired Distributed Nodes |
+| Communication | REST APIs + JSON               |
 
 ---
 
-# 📂 Project Structure
+## 📂 Project Structure
 
 ```bash
 campus-intelligence-matrix/
@@ -291,19 +179,15 @@ campus-intelligence-matrix/
 │   └── index.css
 │
 ├── public/
-│
 ├── server.js
-│
 ├── vite.config.js
-│
 ├── package.json
-│
 └── README.md
 ```
 
 ---
 
-# 🛠 Local Setup
+## ⚙ Local Setup
 
 ### Clone the Repository
 
@@ -319,57 +203,50 @@ cd campus-intelligence-matrix
 npm install
 ```
 
-### Start Backend Server
+### Start the Backend
 
 ```bash
 node server.js
 ```
 
-Backend runs on:
-
-```text
-http://127.0.0.1:5000
-```
-
-### Start Frontend
+### Start the Frontend
 
 ```bash
 npm run dev
 ```
 
-Frontend runs on:
+Frontend:
 
 ```text
 http://localhost:5173
 ```
 
----
+Backend:
 
-# 🔮 Future Enhancements
-
-* Real MCP Protocol Integration
-* Multi-Node Discovery Mechanism
-* Authentication and Student Profiles
-* Live Event Feeds
-* Academic Document Search
-* Voice-Based Campus Assistant
-* Multi-Campus Support
-* LLM Tool Calling Integration
+```text
+http://127.0.0.1:5000
+```
 
 ---
 
-# 🏆 Hackathon Alignment
+## 🔮 Future Improvements
 
-This project directly addresses the challenge of building a **Unified Web Dashboard with an Embedded AI Assistant powered by independent MCP Servers**.
-
-Campus Intelligence Matrix demonstrates how distributed campus services can remain decoupled while still providing students with a unified, intelligent, and real-time information retrieval experience.
+* Authentication and user profiles
+* Multi-campus support
+* Enhanced node discovery
+* Vector-based document search
+* Voice-enabled assistant
+* Real MCP protocol integration
+* Additional campus service nodes
 
 ---
 
-## Built By
+## 👨‍💻 Author
 
 **Prateek Ostwal**
 B.Tech Electrical Engineering
-IIT Roorkee
+Indian Institute of Technology Roorkee
 
-Built using React, Tailwind CSS, Node.js, Express.js, and MCP-inspired distributed architecture.
+GitHub: @theiitianmaverick
+
+Built with React, Node.js, Express.js, Tailwind CSS, and distributed systems principles.
