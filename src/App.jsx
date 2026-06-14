@@ -7,34 +7,39 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [trace, setTrace] = useState('');
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  // 💡 List of campus intelligence suggestions
+  const suggestions = [
+    { label: "📚 Search Book", text: "search for Introduction to Algorithms" },
+    { label: "🍲 Today's Lunch", text: "What is for lunch today?" },
+    { label: "🎯 Campus Events", text: "Are there any club events tomorrow?" },
+    { label: "📜 Attendance Policy", text: "What is the attendance policy rule?" }
+  ];
+
+  const handleSearch = async (searchQuery) => {
+    if (!searchQuery.trim()) return;
 
     setIsLoading(true);
-    setLogs((prev) => [...prev, `> Intercepting query: "${query}"...`]);
+    setLogs((prev) => [...prev, `> Intercepting query: "${searchQuery}"...`]);
     setResult(null);
     setTrace('');
 
     try {
-      // 🌐 THIS IS YOUR LIVE CLOUD BACKEND URL! 
       const response = await fetch('https://campus-intelligence-matrix.onrender.com/api/orchestrate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query: searchQuery }),
       });
 
       const data = await response.json();
       
-      // ✨ FIX: Mapped to match server.js response properties (routedServer & aiResponse)
       setLogs((prev) => [
         ...prev, 
-        `> Routing to node: ${data.routedServer}...`, 
+        `> Routing to node: ${data.routedServer || 'Fallback Engine'}...`, 
         '> Payload extracted successfully.'
       ]);
-      setTrace(`[ROUTING TRACE] ⚡ Processed by: ${data.routedServer}`);
+      setTrace(`[ROUTING TRACE] ⚡ Processed by: ${data.routedServer || 'Fallback Engine'}`);
       setResult(data.aiResponse);
 
     } catch (error) {
@@ -43,6 +48,11 @@ function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSearch(query);
   };
 
   return (
@@ -58,23 +68,44 @@ function App() {
         </header>
 
         {/* Input Section */}
-        <form onSubmit={handleSearch} className="flex gap-4">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask about library books, cafeteria menus, or club events..."
-            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-gray-200 focus:outline-none focus:border-orange-500"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
-          >
-            {isLoading ? 'Routing...' : 'Initialize Query'}
-          </button>
-        </form>
+        <div className="space-y-3">
+          <form onSubmit={handleSubmit} className="flex gap-4">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Ask about library books, cafeteria menus, or club events..."
+              className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-gray-200 focus:outline-none focus:border-orange-500"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+            >
+              {isLoading ? 'Routing...' : 'Initialize Query'}
+            </button>
+          </form>
+
+          {/* ⚡ SUGGESTION BUTTONS ROW */}
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="text-gray-500 self-center mr-1">Suggestions:</span>
+            {suggestions.map((sug, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setQuery(sug.text);
+                  handleSearch(sug.text);
+                }}
+                disabled={isLoading}
+                className="bg-gray-900 hover:bg-gray-800 text-orange-400 border border-gray-800 hover:border-gray-700 px-3 py-1.5 rounded-md transition-all font-mono"
+              >
+                {sug.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Real-time Result Panel */}
