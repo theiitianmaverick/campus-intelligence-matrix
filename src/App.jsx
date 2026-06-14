@@ -1,155 +1,129 @@
 import React, { useState } from 'react';
 
-export default function App() {
+function App() {
   const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [terminalLog, setTerminalLog] = useState([
-    { type: 'system', text: 'System idle. Select a query option on the left to test routing matrix pipelines.' }
-  ]);
-  const [activeNodes, setActiveNodes] = useState({
-    library: false, catering: false, events: false, handbook: false
-  });
+  const [result, setResult] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [trace, setTrace] = useState('');
 
-  const probes = [
-    "Is Introduction to Algorithms available in the library?",
-    "What is being served for lunch in the mess today?",
-    "Are there any upcoming coding club events?",
-    "What is the minimum attendance requirement policy?"
-  ];
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
 
-  const handleRouteQuery = async (textToSend) => {
-    if (!textToSend.trim()) return;
-    setLoading(true);
-    setTerminalLog(prev => [...prev, { type: 'user', text: `> ${textToSend}` }]);
+    setIsLoading(true);
+    // Add initial log to the terminal UI
+    setLogs((prev) => [...prev, `> Intercepting query: "${query}"...`]);
+    setResult(null);
+    setTrace('');
 
     try {
-      const response = await fetch('/api/orchestrate', {
+      // 🌐 THIS IS YOUR LIVE CLOUD BACKEND URL! 
+      // It replaces the local '/api/orchestrate' path.
+      const response = await fetch('https://campus-intelligence-matrix.onrender.com/api/orchestrate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // We are sending every common keyword so your backend finds exactly what it needs
-        body: JSON.stringify({ 
-            prompt: textToSend,
-            query: textToSend,
-            message: textToSend,
-            text: textToSend
-        })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
       });
-      
-      if (!response.ok) {
-        throw new Error(`Server returned status: ${response.status}`);
-      }
-      
+
       const data = await response.json();
-
-      const nodeName = data.routedServer || data.routedNode || "Unknown";
-      const lowerNode = String(nodeName).toLowerCase();
       
-      setActiveNodes({
-        library: lowerNode.includes('library'),
-        catering: lowerNode.includes('dining') || lowerNode.includes('catering'),
-        events: lowerNode.includes('activity') || lowerNode.includes('event'),
-        handbook: lowerNode.includes('registrar') || lowerNode.includes('policy')
-      });
-
-      const responseText = data.aiResponse || data.payload || JSON.stringify(data);
-
-      setTerminalLog(prev => [
-        ...prev,
-        { type: 'route', text: `[ROUTING TRACE] -> Directed query payload straight to: ${nodeName}` },
-        { type: 'success', text: String(responseText) }
+      // Update the terminal and trace UI with the response
+      setLogs((prev) => [
+        ...prev, 
+        `> Routing to node: ${data.nodeTarget}...`, 
+        '> Payload extracted successfully.'
       ]);
-    } catch (err) {
-      console.error("Matrix Orchestrator Error:", err);
-      setTerminalLog(prev => [...prev, { type: 'error', text: `[CRITICAL_ERR] ${err.message}` }]);
+      setTrace(`[ROUTING TRACE] ⚡ Processed by: ${data.nodeTarget}`);
+      setResult(data.answer);
+
+    } catch (error) {
+      setLogs((prev) => [...prev, '> ERROR: Connection to Cloud Orchestrator failed.']);
+      setResult('Failed to connect to the backend. Please check if your Render server is awake.');
     } finally {
-      setLoading(false);
-      setQuery('');
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-6">
-      <div className="max-w-7xl mx-auto flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-        <div>
-          <p className="text-xs font-mono text-emerald-500 tracking-widest uppercase">Zero-DB Live Node System</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Campus Intelligence Matrix</h1>
-        </div>
-        <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-xs font-mono text-slate-400">4 ACTIVE MCP SERVERS</span>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-950 text-gray-100 p-8 font-sans">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header Section */}
+        <header className="border-b border-gray-800 pb-6">
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">
+            Campus Intelligence Matrix 🌐
+          </h1>
+          <p className="mt-2 text-gray-400">Decoupled MCP Architecture Dashboard</p>
+        </header>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5 flex flex-col gap-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl">
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <span>⚡</span> Ask the Campus Intelligent Core
-            </h2>
-            <div className="flex gap-2 mb-6">
-              <input 
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleRouteQuery(query)}
-                placeholder="Ask about books, foods, policies, events..."
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 text-slate-200"
-              />
-              <button 
-                onClick={() => handleRouteQuery(query)}
-                disabled={loading}
-                className="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm"
-              >
-                {loading ? 'Routing...' : 'Send'}
-              </button>
-            </div>
-            <p className="text-xs font-semibold text-slate-400 mb-2">Suggested Live Probes:</p>
-            <div className="flex flex-col gap-2">
-              {probes.map((probe, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleRouteQuery(probe)}
-                  className="w-full text-left bg-slate-950/60 hover:bg-slate-950 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 rounded-lg p-2.5 transition-all"
-                >
-                  &gt; {probe}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Input Section */}
+        <form onSubmit={handleSearch} className="flex gap-4">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ask about library books, cafeteria menus, or club events..."
+            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-gray-200 focus:outline-none focus:border-orange-500"
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+          >
+            {isLoading ? 'Routing...' : 'Initialize Query'}
+          </button>
+        </form>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-            <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">📦 Live Decoupled Nodes</h3>
-            <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-              <div className={`p-3 rounded-lg border ${activeNodes.library ? 'bg-emerald-950/30 border-emerald-500 text-emerald-400 font-bold' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>📖 Library Node</div>
-              <div className={`p-3 rounded-lg border ${activeNodes.catering ? 'bg-emerald-950/30 border-emerald-500 text-emerald-400 font-bold' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>🍳 Catering Node</div>
-              <div className={`p-3 rounded-lg border ${activeNodes.events ? 'bg-emerald-950/30 border-emerald-500 text-emerald-400 font-bold' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>📅 Events Node</div>
-              <div className={`p-3 rounded-lg border ${activeNodes.handbook ? 'bg-emerald-950/30 border-emerald-500 text-emerald-400 font-bold' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>📜 Handbook Node</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-[420px]">
-          <div className="bg-slate-950 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between font-mono text-xs text-slate-400">
-            <span>💻 Orchestrator Output Terminal</span>
-            <span className="text-[10px] bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-slate-500">REALTIME_STREAM</span>
-          </div>
-          <div className="flex-1 p-4 font-mono text-xs flex flex-col gap-2.5 bg-slate-950/40">
-            {terminalLog.map((log, index) => (
-              <div 
-                key={index} 
-                className={`p-2.5 rounded border ${
-                  log.type === 'user' ? 'bg-slate-900 border-slate-800 text-blue-400' :
-                  log.type === 'route' ? 'bg-amber-950/20 border-amber-800/40 text-amber-400' :
-                  log.type === 'success' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300' :
-                  log.type === 'error' ? 'bg-rose-950/40 border-rose-900/60 text-rose-400' : 'bg-slate-950/80 border-slate-800/60 text-slate-400'
-                }`}
-              >
-                {log.text}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Real-time Result Panel */}
+          <div className="bg-gray-900 rounded-lg p-6 border border-gray-800 h-96 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 text-gray-300">Data Output Matrix</h2>
+            
+            {trace && (
+              <div className="mb-4 text-sm font-mono text-orange-400 bg-orange-400/10 p-2 rounded border border-orange-400/20">
+                {trace}
               </div>
-            ))}
+            )}
+            
+            {result ? (
+              <div className="prose prose-invert max-w-none text-gray-300">
+                {result}
+              </div>
+            ) : (
+              <div className="text-gray-600 italic">
+                Awaiting query input...
+              </div>
+            )}
+          </div>
+
+          {/* Orchestrator Terminal UI */}
+          <div className="bg-black rounded-lg p-6 border border-gray-800 font-mono text-sm h-96 overflow-y-auto">
+            <div className="flex items-center gap-2 mb-4 border-b border-gray-800 pb-2">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span className="text-gray-500 ml-2">orchestrator-terminal.log</span>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="text-green-400">&gt; System ready. Awaiting instructions...</div>
+              {logs.map((log, index) => (
+                <div key={index} className={log.includes('ERROR') ? 'text-red-400' : 'text-blue-400'}>
+                  {log}
+                </div>
+              ))}
+              {isLoading && <div className="text-gray-500 animate-pulse">&gt; Processing...</div>}
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );
 }
+
+export default App;
