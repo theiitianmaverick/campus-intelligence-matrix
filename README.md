@@ -1,281 +1,56 @@
 # 🎓 Campus Intelligence Matrix
 
-> An AI-powered campus dashboard that unifies library resources, academic policies, student activities, and dining services through intelligent query orchestration.
+> A Unified Web Dashboard featuring an embedded AI Assistant that orchestrates independent, real-time campus data nodes using a decentralized Model Context Protocol (MCP) design.
 
 ---
 
-# 🚀 Overview
+## 🔗 Live Demo & Links
 
-Campus information is often distributed across multiple disconnected systems. Students frequently switch between portals, PDFs, websites, and notice boards to access essential information.
-
-Campus Intelligence Matrix solves this challenge by providing a unified dashboard powered by an AI-driven orchestration layer. The system analyzes user intent and dynamically routes requests to specialized information nodes responsible for different campus domains.
-
-Rather than relying on a monolithic database, the platform follows a distributed architecture where each service maintains ownership of its own data and functionality.
+* **Deployed Web Dashboard:** [https://campus-intelligence-matrix.onrender.com](https://campus-intelligence-matrix.onrender.com)
+* **Project Video Demo:** [Watch on Google Drive](https://drive.google.com/file/d/15FPNl12HeI17tD67gJa742bb31X75YTC/view?usp=sharing)
+* **GitHub Repository:** [https://github.com/theiitianmaverick/campus-intelligence-matrix](https://github.com/theiitianmaverick/campus-intelligence-matrix)
 
 ---
 
-# 📌 Problem Statement
+## 📖 Project Description
 
-Universities typically maintain separate systems for:
+Campus information is usually scattered across multiple broken portals and static PDFs. To solve this, the **Campus Intelligence Matrix** acts as a single, centralized student dashboard. 
 
-* 📚 Library Resources
-* 📜 Academic Policies
-* 🎉 Student Activities
-* 🍽 Dining Services
-
-This fragmentation creates a poor user experience and makes information discovery inefficient.
-
-Campus Intelligence Matrix addresses this issue through intelligent query routing and centralized access while preserving modularity at the system level.
+Instead of building a massive, brittle web scraper that dumps everything into one giant database, this project implements a decentralized architecture inspired by the **Model Context Protocol (MCP)**. An embedded AI assistant dynamically intercepts natural-language queries from students and routes them to independent, specialized campus servers (nodes) in real-time. Data is fetched live from each source server, ensuring lightning-fast updates and zero data duplication.
 
 ---
 
-# ✨ Key Features
+## ✨ Features
 
-### 🤖 AI Query Orchestrator
-
-Processes natural-language queries and determines the most appropriate service node.
-
-Example Queries:
-
-```text
-Is Introduction to Algorithms available in the library?
-```
-
-```text
-What is being served for lunch today?
-```
-
-```text
-Are there any upcoming coding club events?
-```
-
-```text
-What is the minimum attendance requirement?
-```
+* **AI Query Orchestrator:** Processes natural-language queries (e.g., *"What is for lunch today?"*) and automatically routes them to the correct data node.
+* **Independent MCP Server Nodes:** Dedicated, isolated micro-servers for distinct campus data sources:
+  * 📚 **Library Catalog:** Real-time book availability and location search.
+  * 🍽 **Dining & Cafeteria:** Daily, multi-meal mess menus.
+  * 🎉 **Campus Events:** Active schedules for clubs, workshops, and hackathons.
+  * 📜 **Academic Handbook:** Institutional policies, grading parameters, and attendance rules.
+* **Unified Dashboard UI:** A sleek, dark-mode matrix interface that surfaces results from multiple background sources into one single view.
+* **Real-Time Terminal Console:** An integrated orchestrator log that shows students exactly how their query is being parsed and routed in the backend.
 
 ---
 
-### 📡 Intelligent Query Routing
+## 🛠️ Tech Stack
 
-Each query is analyzed and forwarded to the most relevant node.
-
-Example:
-
-```text
-[ROUTING TRACE]
-Query classified as Dining Information
-Routing request to Main Dining Hall Node
-```
-
----
-
-### 🖥 Real-Time Orchestrator Console
-
-Provides visibility into:
-
-* Request processing
-* Node selection
-* Routing decisions
-* Response generation
-* System activity
+| Layer | Technology Used |
+| :--- | :--- |
+| **Frontend Framework** | React.js |
+| **Build Tool** | Vite |
+| **Styling** | Tailwind CSS |
+| **Backend Engine** | Node.js |
+| **API Framework** | Express.js |
+| **Hosting & Deployment** | Render Cloud (CI/CD Automated Deployment) |
 
 ---
 
-### 📚 Library Catalog Node
+## ⚙️ Setup Instructions
 
-Supports:
+Follow these steps to run the application locally on your machine.
 
-* Book search
-* Resource discovery
-* Availability checks
-* Catalog information
-
----
-
-### 📜 Academic Policy Node
-
-Supports:
-
-* Attendance requirements
-* Academic regulations
-* Registrar notices
-* Institutional guidelines
-
----
-
-### 🎉 Student Activity Node
-
-Supports:
-
-* Club announcements
-* Technical events
-* Workshops
-* Student engagement programs
-
----
-
-### 🍽 Dining Hall Node
-
-Supports:
-
-* Daily menus
-* Meal schedules
-* Dining updates
-* Service timings
-
----
-
-# 🏗 System Architecture
-
-```text
-                              Student
-                                 │
-                                 ▼
-
-                ┌────────────────────────────┐
-                │  Campus Intelligence Matrix │
-                │      React Dashboard        │
-                └─────────────┬──────────────┘
-                              │
-                              ▼
-
-                ┌────────────────────────────┐
-                │     AI Query Orchestrator   │
-                └──────┬─────────┬───────────┘
-                       │         │
-         ┌─────────────┼─────────┼─────────────┐
-         │             │         │             │
-         ▼             ▼         ▼             ▼
-
-      Library      Academic    Events      Dining
-       Node          Node       Node        Node
-```
-
----
-
-# 🔄 Request Flow
-
-```text
-User Query
-    │
-    ▼
-Intent Analysis
-    │
-    ▼
-AI Orchestrator
-    │
-    ▼
-Node Selection
-    │
-    ▼
-Response Generation
-    │
-    ▼
-Dashboard Output
-```
-
----
-
-# 🛠 Technology Stack
-
-| Layer         | Technology                     |
-| ------------- | ------------------------------ |
-| Frontend      | React                          |
-| Build Tool    | Vite                           |
-| Styling       | Tailwind CSS                   |
-| Backend       | Node.js                        |
-| API Framework | Express.js                     |
-| Communication | REST APIs + JSON               |
-| Architecture  | MCP-Inspired Distributed Nodes |
-
----
-
-# 📂 Project Structure
-
+**1. Clone the repository**
 ```bash
-campus-intelligence-matrix/
-│
-├── src/
-│   ├── components/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-│
-├── public/
-├── server.js
-├── vite.config.js
-├── package.json
-└── README.md
-```
-
----
-
-# ⚙ Local Setup
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/theiitianmaverick/campus-intelligence-matrix.git
-
+git clone [https://github.com/theiitianmaverick/campus-intelligence-matrix.git](https://github.com/theiitianmaverick/campus-intelligence-matrix.git)
 cd campus-intelligence-matrix
-```
-
-### Install Dependencies
-
-```bash
-npm install
-```
-
-### Start the Backend
-
-```bash
-node server.js
-```
-
-### Start the Frontend
-
-```bash
-npm run dev
-```
-
-Frontend:
-
-```text
-http://localhost:5173
-```
-
-Backend:
-
-```text
-http://127.0.0.1:5000
-```
-
----
-
-# 🔮 Future Enhancements
-
-* User Authentication
-* Personalized Student Profiles
-* Multi-Campus Support
-* Voice-Based Assistant
-* Vector Search for Academic Documents
-* Real MCP Protocol Integration
-* Dynamic Node Discovery
-* Additional Campus Service Nodes
-
----
-
-# 👨‍💻 Author
-
-**Prateek Ostwal**
-
-B.Tech Electrical Engineering
-Indian Institute of Technology Roorkee
-
-GitHub: @theiitianmaverick
-
----
-
-## ⭐ Support
-
-If you found this project interesting, consider giving the repository a star.
