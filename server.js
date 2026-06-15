@@ -1,72 +1,135 @@
-import express from 'express';
-import cors from 'cors';
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 app.use(express.json());
 
-// Mock Decoupled MCP Data Sources (No central monolithic database)
-const libraryMCP = {
-  name: "Campus Library System Node",
-  query: (q) => q.toLowerCase().includes('algorithm') 
-    ? "SUCCESS: 'Introduction to Algorithms (4th Ed.)' is AVAILABLE in Sector 4, Shelf B. 3 copies remaining."
-    : "NOT_FOUND: No exact matching catalog title found on this node."
+// Enable secure proxy trust layer for cloud tracking headers
+app.set('trust proxy', true);
+
+const LibraryDataSource = {
+  books: [
+    { id: "B1", title: "Introduction to Algorithms", author: "Cormen", status: "Available", location: "CS-Section Shelf 4" },
+    { id: "B2", title: "Principles of Mathematical Analysis", author: "Rudin", status: "Checked Out", location: "Math-Section Shelf 1" },
+    { id: "B3", title: "Operating System Concepts", author: "Galvin", status: "Available", location: "CS-Section Shelf 2" }
+  ]
 };
 
-const cateringMCP = {
-  name: "Main Dining Hall Matrix Node",
-  query: (q) => q.toLowerCase().includes('lunch') || q.toLowerCase().includes('food')
-    ? "SUCCESS: Today's Menu -> Lunch: Grilled Paneer/Chicken Matrix, Herb Basmati Rice, Decoupled Dal Fry. Serving until 14:30."
-    : "NOT_FOUND: No culinary logs match your schedule request."
+const CafeteriaDataSource = {
+  menu: {
+    breakfast: "Aloo Paratha, Curd, Hot Milk, Sprouts",
+    lunch: "Dal Makhani, Shahi Paneer, Jeera Rice, Tandoori Roti, Salad",
+    snacks: "Samosa, Filter Coffee",
+    dinner: "Mix Veg Sabzi, Tarka Dal, Rice, Gulab Jamun"
+  }
 };
 
-const eventsMCP = {
-  name: "Student Activity Center Hub Node",
-  query: (q) => q.toLowerCase().includes('code') || q.toLowerCase().includes('hackathon')
-    ? "SUCCESS: Upcoming Event -> 'ByteCraft Hackathon 2026' starts Friday at 18:00. Venue: Aud-3. Registration open."
-    : "NOT_FOUND: No immediate campus activities matched your inquiry filter."
+const EventsDataSource = {
+  list: [
+    { event: "MaRS Open Project Submission Review", time: "04:00 PM", venue: "Robotics Section Lab", organizer: "MaRS" },
+    { event: "Inter-IIT WebDev Hackathon", time: "09:00 AM (Tomorrow)", venue: "MAC Auditorium", organizer: "Coding Club" }
+  ]
 };
 
-const handbookMCP = {
-  name: "Academic Registrar Policy Node",
-  query: (q) => q.toLowerCase().includes('attendance') || q.toLowerCase().includes('policy')
-    ? "SUCCESS: Policy Code 75-A -> Minimum attendance requirement is 75% per registered course module to clear audit checks."
-    : "NOT_FOUND: Academic handbook metadata query returned empty."
+const AcademicsDataSource = {
+  handbook: {
+    min_credits: 16,
+    max_credits: 26,
+    attendance_policy: "Minimum 75% attendance mandatory to avoid registration cancellation for End-Term Exams."
+  }
 };
 
-// AI Orchestration Routing Endpoint
-app.post('/api/orchestrate', (req, res) => {
-  const { prompt } = req.body;
-  if (!prompt) return res.status(400).json({ error: "Empty query array parameters." });
+// Internal Filtering Engine Core Logic
+function resolveLibrarySearch(keyword) {
+  if (keyword) {
+    return LibraryDataSource.books.filter(b => 
+      b.title.toLowerCase().includes(keyword.toLowerCase()) || 
+      b.author.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+  return LibraryDataSource.books;
+}
 
-  let selectedNode = "Global Fallback Router";
-  let mcpResponse = "Unable to automatically map query parameters to an isolated MCP Node subsystem.";
+// REST Endpoints
+app.get('/mcp/library', (req, res) => {
+  const keyword = req.query.keyword || '';
+  res.json({ provider: "Library Core MCP", data: resolveLibrarySearch(keyword) });
+});
 
-  const text = prompt.toLowerCase();
+app.get('/mcp/cafeteria', (req, res) => res.json({ provider: "Mess & Cafeteria MCP", data: CafeteriaDataSource.menu }));
+app.get('/mcp/events', (req, res) => res.json({ provider: "Campus Events MCP", data: EventsDataSource.list }));
+app.get('/mcp/academics', (req, res) => res.json({ provider: "Academic Handbook MCP", data: AcademicsDataSource.handbook }));
 
-  // Dynamic Real-Time Intelligent Routing Layer
-  if (text.includes('algorithm') || text.includes('book') || text.includes('library')) {
-    selectedNode = libraryMCP.name;
-    mcpResponse = libraryMCP.query(prompt);
-  } else if (text.includes('lunch') || text.includes('food') || text.includes('mess') || text.includes('eat')) {
-    selectedNode = cateringMCP.name;
-    mcpResponse = cateringMCP.query(prompt);
-  } else if (text.includes('code') || text.includes('club') || text.includes('event') || text.includes('hackathon')) {
-    selectedNode = eventsMCP.name;
-    mcpResponse = eventsMCP.query(prompt);
-  } else if (text.includes('attendance') || text.includes('policy') || text.includes('requirement')) {
-    selectedNode = handbookMCP.name;
-    mcpResponse = handbookMCP.query(prompt);
+// Central Routing Orchestrator Layer
+app.post('/api/orchestrate', async (req, res) => {
+  const { query } = req.body;
+  if (!query) return res.status(400).json({ error: "Missing prompt query parameter." });
+
+  const cleanQuery = query.toLowerCase();
+  let selectedServer = "Fallback Engine";
+  let actionIntent = "unknown_intent";
+  let rawData = null;
+  let aiResponse = "";
+
+  // Process data streams entirely internally to avoid recursive loop crashes
+  if (cleanQuery.includes('book') || cleanQuery.includes('library') || cleanQuery.includes('read') || cleanQuery.includes('algorithms')) {
+    selectedServer = "Library Core MCP";
+    actionIntent = "search_books";
+    const keywordMatch = cleanQuery.replace(/find|search|book|library|for|the/g, "").trim();
+    rawData = resolveLibrarySearch(keywordMatch);
+  } 
+  else if (cleanQuery.includes('food') || cleanQuery.includes('menu') || cleanQuery.includes('lunch') || cleanQuery.includes('mess') || cleanQuery.includes('cafeteria') || cleanQuery.includes('dinner')) {
+    selectedServer = "Mess & Cafeteria MCP";
+    actionIntent = "fetch_menu";
+    rawData = CafeteriaDataSource.menu;
+  }
+  else if (cleanQuery.includes('event') || cleanQuery.includes('club') || cleanQuery.includes('hackathon') || cleanQuery.includes('mars')) {
+    selectedServer = "Campus Events MCP";
+    actionIntent = "fetch_events";
+    rawData = EventsDataSource.list;
+  }
+  else if (cleanQuery.includes('policy') || cleanQuery.includes('attendance') || cleanQuery.includes('rule') || cleanQuery.includes('credit')) {
+    selectedServer = "Academic Handbook MCP";
+    actionIntent = "fetch_rules";
+    rawData = AcademicsDataSource.handbook;
   }
 
-  res.json({
-    routedNode: selectedNode,
-    timestamp: new Date().toISOString(),
-    payload: mcpResponse
-  });
+  try {
+    if (actionIntent === "search_books") {
+      if (rawData && rawData.length > 0) {
+        aiResponse = `📚 Matrix matching successful. Found book: "${rawData[0].title}" by ${rawData[0].author}. Status: [${rawData[0].status}]. Location: ${rawData[0].location}.`;
+      } else {
+        aiResponse = `❌ Library search returned 0 results. Try searching for 'Algorithms'.`;
+      }
+    } 
+    else if (actionIntent === "fetch_menu") {
+      aiResponse = `🍲 Live Cafeteria Node Menu Parsed:\n\n• 🍳 Breakfast: ${rawData.breakfast}\n• 🍛 Lunch: ${rawData.lunch}\n• ☕ Snacks: ${rawData.snacks}\n• 🍨 Dinner: ${rawData.dinner}`;
+    } 
+    else if (actionIntent === "fetch_events") {
+      aiResponse = `🎯 Active Cluster Events Registered:\n\n${rawData.map(e => `• [${e.time}] ${e.event} - Venue: ${e.venue}`).join('\n')}`;
+    } 
+    else if (actionIntent === "fetch_rules") {
+      aiResponse = `📜 Academic Node Policy Check:\n\n• Policy Rule: ${rawData.attendance_policy}`;
+    } 
+    else {
+      aiResponse = `🤖 Try choosing one of the interactive suggestion chips above!`;
+    }
+
+    res.json({
+      routedServer: selectedServer,
+      intent: actionIntent,
+      payload: rawData,
+      aiResponse: aiResponse,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: "Orchestration layer failed to resolve internals." });
+  }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`[ORCHESTRATOR MATRIX] Core backend cluster live on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Core backend cluster live on port ${PORT}`));
